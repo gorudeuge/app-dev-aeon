@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#b5006b">
 <title>AEON FixIt (Supabase)</title>
 <style>
 :root{--bg:#faf7f9;--sf:#fff;--tx:#241a21;--mu:#6e6068;--ac:#a0115f;--ac2:#fbe3ef;--ln:#e6dce2;--ok:#1d7a4d;--wn:#b36b00;--er:#b3261e;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -41,10 +42,35 @@ header{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20
 main{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
 @media (min-width:900px){main{max-width:1140px}.tkgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.tkgrid .tk,.tkgrid .tk:first-child{border:1px solid var(--ln);border-radius:8px;padding:12px 14px}.tkgrid .empty{grid-column:1/-1}.stats{grid-template-columns:repeat(4,1fr)}button:hover{filter:brightness(1.08)}}
 @media (max-width:600px){main{padding-top:14px;padding-bottom:14px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}header{padding-top:10px;padding-bottom:10px}.stats{grid-template-columns:1fr 1fr}.tabs button{flex:1 1 auto}.row>*{flex:1 1 100%}.card{padding:12px}#out{margin-left:auto}}
+
+:root{--bg:#fdf3f8;--ac:#b5006b;--ln:#efd6e4}
+html{-webkit-text-size-adjust:100%}
+body{background:radial-gradient(circle at 100% 0,rgba(181,0,107,.12),transparent 42%),radial-gradient(circle at 0 100%,rgba(181,0,107,.09),transparent 46%),var(--bg);background-attachment:fixed;min-height:100vh;-webkit-tap-highlight-color:transparent}
+button,select{touch-action:manipulation}
+header{background:linear-gradient(120deg,#8a0052,#c4007a 65%,#e2479f);padding-top:16px;padding-bottom:16px;box-shadow:0 2px 12px rgba(138,0,82,.25)}
+header h1{font-size:1.3rem;line-height:1.15}header h1 small{display:block;font-size:.72rem;font-weight:500;opacity:.92;letter-spacing:.6px;text-transform:uppercase}
+header button#out{background:#fff;color:#8a0052;border-color:#fff}
+button{border-radius:99px}
+.card{border-radius:16px;box-shadow:0 2px 12px rgba(181,0,107,.08);border-top:3px solid var(--ac)}
+.stat{border-radius:14px;box-shadow:0 2px 8px rgba(181,0,107,.07)}
+nav button{border-radius:99px}nav button span{margin-right:6px}
+@media (prefers-color-scheme:dark){button:not(.ghost),nav button.on,.tabs button.on{color:#2b0a1c}}
+@media (max-width:700px){nav{position:fixed;left:0;right:0;bottom:0;z-index:20;justify-content:space-around;gap:0;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--ln);border-bottom:0;box-shadow:0 -4px 16px rgba(0,0,0,.1)}nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.72rem;padding:6px 2px;border:0;border-radius:12px;min-height:54px}nav button span{font-size:1.3rem;margin:0}body{padding-bottom:84px}}
+
+#botb{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;width:56px;height:56px;padding:0;border-radius:50%;font-size:1.5rem;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+#botp{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;width:min(360px,calc(100vw - 32px));height:min(480px,calc(100vh - 170px));display:none;flex-direction:column;background:var(--sf);border:1px solid var(--ln);border-top:3px solid var(--ac);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.25);overflow:hidden}
+#botp.open{display:flex}
+#botm{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.bm{max-width:88%;padding:8px 12px;border-radius:14px;white-space:pre-wrap;font-size:.92rem}
+.bm.b{background:var(--ac2);align-self:flex-start}.bm.u{background:var(--ac);color:#fff;align-self:flex-end}
+#botc{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 8px}#botc button{font-size:.8rem;padding:4px 10px;min-height:32px}
+#botf{display:flex;gap:8px;padding:10px;border-top:1px solid var(--ln)}#botf input{flex:1}
+@media (prefers-color-scheme:dark){.bm.u{color:#2b0a1c}}
+@media (max-width:700px){#botb{bottom:calc(78px + env(safe-area-inset-bottom,0px))}#botp{bottom:calc(144px + env(safe-area-inset-bottom,0px));height:min(480px,calc(100vh - 240px))}}
 </style>
 </head>
 <body>
-<header><h1>AEON FixIt</h1><span id="who"></span><button id="out" hidden>Sign out</button></header>
+<header><h1>AEON FixIt<small>Mall BSD City · Operations</small></h1><span id="who"></span><button id="out" hidden>Sign out</button></header>
 <nav id="nav" aria-label="Sections"></nav>
 <main id="app"></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
@@ -70,7 +96,7 @@ const ZONES=[{k:"A",n:"Parking annex (roofed)",cap:1600},{k:"B",n:"Outdoor lot",
 let sec="",fq2="",ff="All";
 function render(){const R=me.role;const S=[["tix",R==="manager"?"Tickets":"My tickets"],["find","Store finder"],["park","Parking"],["lost","Lost & found"]].filter(x=>R==="visitor"?x[0]!=="tix":R==="tenant"?x[0]==="tix":true);
  if(!S.some(x=>x[0]===sec))sec=S[0][0];
- nav.innerHTML=S.length<2?"":S.map(x=>`<button class="${x[0]===sec?"on":""}" data-s="${x[0]}">${x[1]}</button>`).join("");
+ nav.innerHTML=S.length<2?"":S.map(x=>`<button class="${x[0]===sec?"on":""}" data-s="${x[0]}"><span aria-hidden="true">${({tix:"🎫",find:"🔎",park:"🅿️",lost:"🧳"})[x[0]]}</span>${x[1]}</button>`).join("");
  nav.querySelectorAll("button").forEach(b=>b.onclick=()=>{sec=b.dataset.s;render()});
  $("who").textContent=me.name;const o=$("out");o.hidden=false;o.onclick=bye;
  ({tix,find,park,lost})[sec]()}
@@ -87,6 +113,38 @@ function lost(){const m=me.role==="manager",ST=["Searching","At Information Coun
   if(i.length<3||w.length<3){$("le").textContent="Enter the item and where it was lost or found, at least 3 characters each.";return}
   sb.from("lost_items").insert({kind:k,item:i,location:w,status:k==="Found"?"At Information Counter":"Searching"}).then(async r=>{if(r.error)return fail(r.error);await pull();lost()})};
  app.querySelectorAll("select[data-l]").forEach(s=>s.onchange=()=>{const x=db.lost.find(y=>y.id==s.dataset.l);if(m&&x){sb.from("lost_items").update({status:s.value}).eq("id",x.id).then(async r=>{if(r.error)return fail(r.error);await pull();lost()})}})}
+const STOP="where what the are can you find store shop located how which floor there near any get does have and for with this that".split(" ");
+const KW=[[/coffee|cafe|caf\u00e9|kopi/,/coffee|cafe|caffe|java|liberica|luwak|koi/],[/ramen/,/ramen|men-oh|ebisoba/],[/cinema|movie|film|bioskop/,/cinema/],[/supermarket|grocer/,/aeon bsd city store/],[/toy|kids|mainan/,/toy|kids|snoopy|multi toys/],[/phone|electronic|gadget|laptop/,/erafone|samsung|best denki|gadget|iconnect|wellcomm|telesindo/],[/book/,/gramedia/],[/bank|atm/,/bni|cimb/],[/gym|fitness/,/celebrity/],[/pizza/,/piza|popolamama/]];
+const has=(t,n)=>{n=n.toLowerCase();const i=t.indexOf(n);if(i<0)return false;const a=t[i-1],b=t[i+n.length];return !(a&&/[a-z0-9]/.test(a))&&!(b&&/[a-z0-9]/.test(b))};
+const loc=s=>`${s.name}: ${FL.find(f=>f[0]===s.fl)[1].toLowerCase()}, unit ${s.id}`;
+function reply(q){const t=q.toLowerCase().trim(),W=t.split(/[^a-z0-9&']+/).filter(w=>w.length>3&&!STOP.includes(w));
+ const exact=STORES.filter(s=>s.name.length>3&&has(t,s.name));
+ if(exact.length)return exact.slice(0,5).map(loc).join("\n")+"\nUnit codes are placeholders, so use the Store finder tab for the full list.";
+ if(/park|parkir|vehicle/.test(t)){if(!db||!db.park)return "Parking information is not available right now.";return "Free parking spaces right now:\n"+ZONES.map(z=>`\u2022 ${z.n}: ${z.cap-db.park[z.k]} of ${z.cap}`).join("\n")+"\nThe mall office updates these counts by hand."}
+ if(/lost|found|missing|wallet|hilang|ditemukan|ketemu/.test(t)){const n=db&&db.lost?db.lost.filter(x=>x.status!=="Returned"):[],hit=n.filter(x=>W.some(w=>x.item.toLowerCase().includes(w)));
+  return (hit.length?"Possible matches:\n"+hit.slice(0,4).map(x=>`\u2022 ${x.kind}: ${x.item} (${x.where}, ${x.status})`).join("\n")+"\n\n":"")+"To report something lost or found, open the Lost & found tab. Found items should be handed to the Information Counter."}
+ if(/ticket|maintenance|repair|broken|leak|problem|issue|lapor|rusak/.test(t)){
+  if(!me||me.role==="visitor"||!db)return "Maintenance tickets are for store staff. If you see a problem in the mall, please tell the Information Counter.";
+  const o=db.tickets.filter(x=>(me.role==="manager"||x.uid===me.id)&&x.status!=="Resolved").length;
+  return me.role==="manager"?`There are ${o} unresolved tickets. Open the Tickets tab to change a status or assign a crew.`:`To report a problem, open My tickets, then Report an issue. Your store has ${o} unresolved ticket(s).`}
+ for(const [k,n] of KW)if(k.test(t)){const r=STORES.filter(s=>n.test(s.name.toLowerCase()));if(r.length)return r.slice(0,6).map(loc).join("\n")+(r.length>6?`\n\u2026and ${r.length-6} more in the Store finder.`:"")}
+ if(/eat|food|restaurant|hungry|makan/.test(t))return "Food & beverage tenants by floor:\n"+FL.map(f=>`\u2022 ${f[1]}: ${STORES.filter(s=>s.fl===f[0]&&s.cat==="Food & beverage").length}`).join("\n")+"\nTell me a cuisine or a name, or use the Store finder.";
+ if(/hour|open|close|buka|tutup/.test(t))return "I don't have opening hours. Please check AEON Mall's official website or ask at the Information Counter.";
+ const f=W.length?STORES.filter(s=>W.some(w=>s.name.toLowerCase().includes(w))).slice(0,5):[];
+ if(f.length)return "Closest matches:\n"+f.map(loc).join("\n");
+ if(/^(hi|hello|hey|halo|hai)\b/.test(t))return "Hello! Ask me about a store, parking, lost items or reporting a problem.";
+ if(/thank|terima/.test(t))return "You're welcome!";
+ return "Sorry, I didn't catch that. I can help with finding a store, parking, lost & found, and maintenance tickets.";}
+function mkBot(){const w=document.createElement("div");
+ w.innerHTML=`<button id="botb" aria-label="Open chat assistant" aria-expanded="false">\U0001F4AC</button><section id="botp" aria-label="Chat assistant"><div id="botm" role="log" aria-live="polite"></div><div id="botc"></div><form id="botf"><input id="boti" placeholder="Ask about stores, parking\u2026" aria-label="Your message" maxlength="200" autocomplete="off"><button type="submit">Send</button></form></section>`;
+ document.body.appendChild(w);const m=$("botm");
+ const say=(t,c)=>{const d=document.createElement("div");d.className="bm "+c;d.textContent=t;m.appendChild(d);m.scrollTop=m.scrollHeight};
+ const ask=q=>{say(q,"u");say(reply(q),"b")};
+ $("botc").innerHTML=["Where is UNIQLO?","Is parking available?","I lost something","Where can I get coffee?"].map(c=>`<button type="button" class="ghost">${c}</button>`).join("");
+ $("botc").onclick=e=>{if(e.target.tagName==="BUTTON")ask(e.target.textContent)};
+ $("botf").onsubmit=e=>{e.preventDefault();const v=$("boti").value.trim();if(v){$("boti").value="";ask(v)}};
+ $("botb").onclick=()=>{const o=$("botp").classList.toggle("open");$("botb").setAttribute("aria-expanded",o);if(o){if(!m.children.length)say("Hi! I'm the AEON FixIt assistant. I can help you find a store, check parking, handle lost items, or report a problem.","b");$("boti").focus()}}}
+mkBot();
 const CATS=["Electrical","Plumbing","Air conditioning","Cleaning","Signage","Security","Other"];
 const PRI=["Low","Normal","High","Urgent"],STAT=["Open","In progress","Resolved"],TEAMS=["Unassigned","Electrical crew","Plumbing crew","HVAC crew","Housekeeping","Security"];
 const now=()=>new Date().toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"});
@@ -114,7 +172,7 @@ async function fromSession(){const {data:{session}}=await sb.auth.getSession();i
  await enter({id:m?session.user.id:p.store_id,name:m?"Facilities Manager":(s?s.name+" ("+s.id+")":"Store staff"),role:p.role,unit:p.store_id||"Mall Office"});return true}
 async function init(){try{if(!(await fromSession()))login()}catch(e){login()}}
 function login(){nav.innerHTML="";$("who").textContent="";$("out").hidden=true;
- app.innerHTML=`<div class="card" style="max-width:420px;margin:30px auto"><h2>Sign in</h2>
+ app.innerHTML=`<div class="card" style="max-width:420px;margin:30px auto"><h2>Welcome to AEON Mall BSD City</h2>
  <p class="meta">Store staff and the facilities manager sign in with email and password. Visitors need no account.</p>
  <label for="em">Email</label><input id="em" type="email" autocomplete="username"><label for="pw">Password (6+ characters)</label><input id="pw" type="password" autocomplete="current-password">
  <p class="err" id="e" role="alert"></p><button id="go">Sign in</button> <button id="gu" class="ghost">Continue as visitor</button>

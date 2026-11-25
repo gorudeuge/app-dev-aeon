@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#9c005c">
+  <title>AEON FixIt</title>
+  <style>
+    :root {
+      --bg: #fbf7f9;
+      --surface: #fff;
+      --text: #251923;
+      --muted: #74636d;
+      --accent: #a50062;
+      --accent-soft: #f9deed;
+      --line: #eadde4;
+      --success: #197449;
+      --warning: #a86600;
+      --danger: #b3261e;
+      --shadow: 0 8px 24px rgba(88, 30, 62, .09);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #171216;
+        --surface: #241d22;
+        --text: #f7edf3;
+        --muted: #beaeb7;
+        --accent: #ff79b8;
+        --accent-soft: #402136;
+        --line: #3e3038;
+        --success: #62d69c;
+        --warning: #f3b65d;
+        --danger: #ff9289;
+        --shadow: 0 8px 24px rgba(0, 0, 0, .25);
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #171216;
+      --surface: #241d22;
+      --text: #f7edf3;
+      --muted: #beaeb7;
+      --accent: #ff79b8;
+      --accent-soft: #402136;
+      --line: #3e3038;
+      --success: #62d69c;
+      --warning: #f3b65d;
+      --danger: #ff9289;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 100% 0, rgba(181, 0, 107, .11), transparent 38%), var(--bg);
+      color: var(--text);
+      font: 16px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+    button, input, select, textarea { font: inherit; }
+    button, input, select, textarea {
+      min-height: 44px;
+      touch-action: manipulation;
+    }
+    button {
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      padding: 8px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button.ghost { background: transparent; color: var(--accent); }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 72px;
+      padding: 12px max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left));
+      background: linear-gradient(120deg, #85004f, #bb006e 65%, #dd428f);
+      color: #fff;
+      box-shadow: 0 3px 14px rgba(112, 0, 66, .22);
+    }
+    header h1 { flex: 1; margin: 0; font-size: 1.28rem; line-height: 1.15; }
+    header h1 small {
+      display: block;
+      margin-top: 3px;
+      font-size: .68rem;
+      font-weight: 600;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      opacity: .9;
+    }
+    #who { font-size: .9rem; }
+    #out { background: #fff; color: #85004f; border-color: #fff; }
+    nav {
+      display: flex;
+      gap: 8px;
+      padding: 10px 20px;
+      overflow-x: auto;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+    nav:empty { display: none; }
+    nav button { flex: 0 0 auto; background: transparent; color: var(--accent); }
+    nav button.on { background: var(--accent); color: #fff; }
+    nav button span { margin-right: 6px; }
+    main {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 20px max(20px, env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom));
+    }
+    .card {
+      margin-bottom: 16px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--accent);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    h2 { margin: 0 0 12px; font-size: 1.25rem; }
+    h3 { margin: 0; font-size: 1rem; }
+    label { display: block; margin: 10px 0 4px; color: var(--muted); font-size: .85rem; }
+    input, select, textarea {
+      width: 100%;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+    }
+    textarea { resize: vertical; }
+    .row { display: flex; flex-wrap: wrap; gap: 12px; }
+    .row > * { flex: 1 1 180px; }
+    .meta, .empty { color: var(--muted); }
+    .meta { font-size: .85rem; }
+    .empty { padding: 12px 0; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--accent);
+      border-radius: 14px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .stat b { display: block; font-size: 1.7rem; line-height: 1.1; }
+    .stat small { color: var(--muted); }
+    .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+    .tabs button.on { background: var(--accent); color: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .item {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+    .pill {
+      display: inline-block;
+      margin: 4px 6px 4px 0;
+      padding: 2px 9px;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 700;
+    }
+    .Open, .Urgent { color: var(--danger); }
+    .In-progress { color: var(--warning); }
+    .Resolved, .Low { color: var(--success); }
+    .Normal, .High { color: var(--warning); }
+    .log { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: .82rem; }
+    .error { min-height: 1.2em; color: var(--danger); font-size: .9rem; }
+    #botb {
+      position: fixed;
+      right: 16px;
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      z-index: 40;
+      width: 56px;
+      height: 56px;
+      padding: 0;
+      border-radius: 50%;
+      font-size: 1.45rem;
+      box-shadow: 0 5px 18px rgba(0, 0, 0, .25);
+    }
+    #botp {
+      position: fixed;
+      right: 16px;
+      bottom: calc(84px + env(safe-area-inset-bottom));
+      z-index: 40;
+      display: none;
+      flex-direction: column;
+      width: min(360px, calc(100vw - 32px));
+      height: min(480px, calc(100vh - 170px));
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--accent);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, .25);
+    }
+    #botp.open { display: flex; }
+    #botm { flex: 1; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding: 12px; }
+    .bubble { max-width: 88%; padding: 8px 12px; border-radius: 14px; white-space: pre-wrap; font-size: .92rem; }
+    .bubble.bot { align-self: flex-start; background: var(--accent-soft); }
+    .bubble.user { align-self: flex-end; background: var(--accent); color: #fff; }
+    #botq { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px 8px; }
+    #botq button { min-height: 32px; padding: 4px 10px; font-size: .8rem; }
+    #botf { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--line); }
+    #botf input { flex: 1; }
+    @media (max-width: 700px) {
+      header { position: relative; }
+      nav {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 30;
+        justify-content: space-around;
+        gap: 0;
+        padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+        border-top: 1px solid var(--line);
+        border-bottom: 0;
+      }
+      nav button {
+        display: flex;
+        flex: 1;
+        min-height: 54px;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        padding: 6px 2px;
+        border: 0;
+        border-radius: 12px;
+        font-size: .72rem;
+      }
+      nav button span { margin: 0; font-size: 1.3rem; }
+      main { padding: 14px 12px 94px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: 1fr; }
+      .row > * { flex-basis: 100%; }
+      #botb { bottom: calc(78px + env(safe-area-inset-bottom)); }
+      #botp { bottom: calc(144px + env(safe-area-inset-bottom)); height: min(480px, calc(100vh - 240px)); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AEON FixIt <small>Mall BSD City · Operations</small></h1>
+    <span id="who"></span>
+    <button id="out" hidden>Sign out</button>
+  </header>
+  <nav id="nav" aria-label="Sections"></nav>
+  <main id="app"></main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+  <script>
+    // Supabase publishable/anon keys are public; access must be enforced by RLS.
+    const SUPABASE_URL = "https://qxmzzrjjwpfxsjqepwav.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_TAtHPyAtTwHleVs-Qap49Q_0B_boarK";
+    const KEY = "aeonfixit.v3";
+    const FLOORS = [["G","Ground floor"],["1F","1st floor"],["2F","2nd floor"],["3F","3rd floor"]];
+    const CATEGORIES = ["Electrical","Plumbing","Air conditioning","Cleaning","Signage","Security","Other"];
+    const PRIORITIES = ["Low","Normal","High","Urgent"];
+    const STATUSES = ["Open","In progress","Resolved"];
+    const TEAMS = ["Unassigned","Electrical crew","Plumbing crew","HVAC crew","Housekeeping","Security"];
+
+    const DIRECTORY = [
+      {floor:"G",name:"Starbucks Coffee",category:"Food & beverage"},
+      {floor:"G",name:"Auntie Anne's",category:"Food & beverage"},
+      {floor:"G",name:"AEON BSD City Store",category:"Shop"},
+      {floor:"G",name:"Guardian",category:"Shop"},
+      {floor:"1F",name:"UNIQLO",category:"Shop"},
+      {floor:"1F",name:"Giordano",category:"Shop"},
+      {floor:"1F",name:"H&M",category:"Shop"},
+      {floor:"2F",name:"Gramedia",category:"Shop"},
+      {floor:"2F",name:"Daiso Japan",category:"Shop"},
+      {floor:"2F",name:"Cinema XXI",category:"Entertainment"},
+      {floor:"3F",name:"Ace Hardware",category:"Shop"},
+      {floor:"3F",name:"Solaria",category:"Food & beverage"},
+      {floor:"3F",name:"Celebrity Fitness",category:"Service"}
+    ];
+    const STORES = DIRECTORY.map((s,i) => ({
+      id: s.floor + "-" + String(i + 1).padStart(2,"0"),
+      name: s.name,
+      floor: s.floor,
+      category: s.category
+    }));
+
+    const ZONES = [
+      {key:"A",name:"Parking annex (roofed)",capacity:1600},
+      {key:"B",name:"Outdoor lot",capacity:440},
+      {key:"D",name:"Disabled bays",capacity:24},
+      {key:"W",name:"Women-driver bays",capacity:60}
+    ];
+
+    const app = document.getElementById("app");
+    const nav = document.getElementById("nav");
+    const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+    })[c]);
+    const now = () => new Date().toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"});
+    const floorName = code => FLOORS.find(f => f[0] === code)?.[1] || "Unknown floor";
+    const storeById = id => STORES.find(s => s.id === id);
+
+    let me = null;
+    let section = "";
+    let tab = "list";
+    let search = {q:"", status:"All", store:"All", floor:"All"};
+    let db = null;
+    let sb = null;
+
+    try {
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch (error) {
+      console.error(error);
+    }
+
+    function demoDb() {
+      return {
+        tickets: [
+          {id:1,store_id:"G-01",unit:"G-01",category:"Air conditioning",priority:"High",title:"AC not cooling in seating area",description:"Temperature stays above 30°C since morning.",status:"In progress",team:"HVAC crew",log:["Created " + now(),"Assigned to HVAC crew"]},
+          {id:2,store_id:"1F-05",unit:"1F-05",category:"Electrical",priority:"Urgent",title:"Flickering lights in fitting room",description:"Two panels flicker and buzz.",status:"Open",team:"Unassigned",log:["Created " + now()]},
+          {id:3,store_id:"2F-08",unit:"2F-08",category:"Cleaning",priority:"Low",title:"Water stain on ceiling tile",description:"Small stain, no dripping.",status:"Resolved",team:"Housekeeping",log:["Created " + now(),"Resolved " + now()]}
+        ],
+        parking:{A:820,B:210,D:6,W:22},
+        lost:[
+          {id:1,kind:"Found",item:"Black wallet",where:"Food Carnival, 3rd floor",date:now(),status:"At Information Counter"},
+          {id:2,kind:"Lost",item:"Blue child’s water bottle",where:"Miniapolis, 2nd floor",date:now(),status:"Searching"}
+        ]
+      };
+    }
+
+    function loadLocal() {
+      try {
+        db = JSON.parse(localStorage.getItem(KEY));
+      } catch (_) {
+        db = null;
+      }
+      if (!db || !Array.isArray(db.tickets) || !db.parking || !Array.isArray(db.lost)) {
+        db = demoDb();
+        saveLocal();
+      }
+    }
+
+    function saveLocal() {
+      try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (_) {}
+    }
+    loadLocal();
+
+    async function pull() {
+      if (!sb) throw new Error("Supabase is unavailable.");
+      const [tickets, events, parking, lost] = await Promise.all([
+        sb.from("tickets").select("*").order("id",{ascending:false}),
+        sb.from("ticket_events").select("*").order("created_at"),
+        sb.from("parking_zones").select("*"),
+        sb.from("lost_items").select("*").order("created_at")
+      ]);
+      for (const result of [tickets,events,parking,lost]) {
+        if (result.error) throw result.error;
+      }
+      db = {
+        tickets: tickets.data.map(row => ({
+          id: row.id,
+          uid: row.store_id,
+          store_id: row.store_id,
+          unit: row.store_id,
+          category: row.category,
+          priority: row.priority,
+          title: row.title,
+          description: row.description,
+          status: row.status,
+          team: row.assigned_team,
+          log: events.data.filter(event => event.ticket_id === row.id)
+            .map(event => event.note + " · " + new Date(event.created_at).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"}))
+        })),
+        parking: Object.fromEntries(parking.data.map(row => [row.key,row.occupied])),
+        lost: lost.data.map(row => ({
+          id: row.id,
+          kind: row.kind,
+          item: row.item,
+          where: row.location,
+          date: new Date(row.created_at).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"}),
+          status: row.status
+        }))
+      };
+      saveLocal();
+    }
+
+    function fail(error) {
+      const message = error?.message || String(error);
+      alert("Something went wrong: " + message);
+    }
+
+    async function signOut() {
+      if (sb) await sb.auth.signOut();
+      me = null;
+      section = "";
+      login();
+    }
+
+    async function enter(user) {
+      me = user;
+      try {
+        if (sb) await pull();
+        render();
+      } catch (error) {
+        console.error(error);
+        me = user;
+        render();
+      }
+    }
+
+    async function restoreSession() {
+      if (!sb) return false;
+      const {data:{session}} = await sb.auth.getSession();
+      if (!session) return false;
+      const {data:profile,error} = await sb.from("profiles").select("*").eq("id",session.user.id).single();
+      if (error || !profile) return false;
+      const store = STORES.find(s => s.id === profile.store_id);
+      await enter({
+        id: profile.role === "manager" ? session.user.id : profile.store_id,
+        name: profile.role === "manager" ? "Facilities Manager" : (store ? `${store.name} (${store.id})` : "Store staff"),
+        role: profile.role,
+        unit: profile.store_id || "Mall Office"
+      });
+      return true;
+    }
+
+    function login() {
+      nav.innerHTML = "";
+      document.getElementById("who").textContent = "";
+      document.getElementById("out").hidden = true;
+      app.innerHTML = `
+        <div class="card" style="max-width:460px;margin:30px auto">
+          <h2>Welcome to AEON Mall BSD City</h2>
+          <p class="meta">Store staff and the facilities manager sign in with email and password.</p>
+          <label for="email">Email</label>
+          <input id="email" type="email" autocomplete="username" maxlength="254">
+          <label for="password">Password (6+ characters)</label>
+          <input id="password" type="password" autocomplete="current-password" minlength="6">
+          <p class="error" id="loginError" role="alert"></p>
+          <button id="signin">Sign in</button>
+          <button id="visitor" class="ghost">Continue as visitor</button>
+          <h2 style="margin-top:22px">New store account</h2>
+          <label for="store">Your store</label>
+          <select id="store">${FLOORS.map(floor => `
+            <optgroup label="${floor[1]}">
+              ${STORES.filter(store => store.floor === floor[0]).map(store => `
+                <option value="${store.id}">${esc(store.name)} (${store.id})</option>
+              `).join("")}
+            </optgroup>`).join("")}</select>
+          <p><button id="signup" class="ghost">Create store account</button></p>
+        </div>`;
+
+      const credentials = () => ({
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value
+      });
+      const message = text => document.getElementById("loginError").textContent = text;
+
+      document.getElementById("signin").onclick = async () => {
+        if (!sb) return message("The online service is unavailable.");
+        const credentialsValue = credentials();
+        if (!credentialsValue.email || credentialsValue.password.length < 6) {
+          return message("Enter a valid email and a password of at least 6 characters.");
+        }
+        const {error} = await sb.auth.signInWithPassword(credentialsValue);
+        if (error) return message("Sign-in failed: " + error.message);
+        if (!(await restoreSession())) message("This account has no valid profile.");
+      };
+      document.getElementById("signup").onclick = async () => {
+        if (!sb) return message("The online service is unavailable.");
+        const credentialsValue = credentials();
+        if (!credentialsValue.email || credentialsValue.password.length < 6) {
+          return message("Enter a valid email and a password of at least 6 characters.");
+        }
+        const {data,error} = await sb.auth.signUp({
+          ...credentialsValue,
+          options:{data:{store_id:document.getElementById("store").value}}
+        });
+        if (error) return message("Could not create the account: " + error.message);
+        if (!data.session) return message("Account created. Confirm it from the email we sent, then sign in.");
+        await restoreSession();
+      };
+      document.getElementById("visitor").onclick = () => {
+        enter({id:"visitor",name:"Visitor",role:"visitor",unit:"-"});
+      };
+    }
+
+    function render() {
+      if (!me) return login();
+      const sections = [
+        ["tix", me.role === "manager" ? "Tickets" : "My tickets", "tickets"],
+        ["find","Store finder","finder"],
+        ["park","Parking","parking"],
+        ["lost","Lost & found","lost"]
+      ].filter(([key]) => me.role === "manager" || me.role === "tenant" ? key !== "lost" || true : key !== "tix");
+
+      if (!sections.some(([key]) => key === section)) section = sections[0][0];
+      nav.innerHTML = sections.map(([key,label]) => {
+        const icon = {tix:"🎫",find:"🔎",park:"🅿️",lost:"🧳"}[key];
+        return `<button class="${key === section ? "on" : ""}" data-section="${key}"><span aria-hidden="true">${icon}</span>${label}</button>`;
+      }).join("");
+      nav.querySelectorAll("button").forEach(button => button.onclick = () => {
+        section = button.dataset.section;
+        render();
+      });
+
+      document.getElementById("who").textContent = me.name;
+      const signOutButton = document.getElementById("out");
+      signOutButton.hidden = false;
+      signOutButton.onclick = signOut;
+      ({tix,find,park,lost})[section]();
+    }
+
+    function find() {
+      const matches = STORES.filter(store =>
+        (search.floor === "All" || store.floor === search.floor) &&
+        (store.name + " " + store.category).toLowerCase().includes(search.q.toLower())
+      );
+      app.innerHTML = `
+        <div class="card">
+          <h2>Find a store</h2>
+          <p class="meta">The 2015 opening directory may be out of date. Unit codes are placeholders.</p>
+          <div class="row">
+            <div><label for="storeSearch">Search</label><input id="storeSearch" value="${esc(search.q)}" placeholder="Name or category"></div>
+            <div><label for="floorSearch">Floor</label>
+              <select id="floorSearch"><option value="All">All floors</option>${FLOORS.map(f => `<option value="${f[0]}" ${search.floor === f[0] ? "selected" : ""}>${f[1]}</option>`).join("")}</select>
+            </div>
+          </div>
+        </div>
+        <div class="card grid">
+          ${matches.length ? matches.map(store => `
+            <div class="item">
+              <h3>${esc(store.name)}</h3>
+              <div class="meta">${floorName(store.floor)} · ${esc(store.category)} · Unit ${esc(store.id)}</div>
+            </div>`).join("") : `<p class="empty">No store matches. Try a shorter name or All floors.</p>`}
+        </div>`;
+      document.getElementById("floorSearch").onchange = event => {
+        search.floor = event.target.value;
+        find();
+      };
+      document.getElementById("storeSearch").oninput = event => {
+        search.q = event.target.value;
+        find();
+        const input = document.getElementById("storeSearch");
+        input.focus();
+        input.setSelectionRange(search.q.length,search.q.length);
+      };
+    }
+
+    function park() {
+      app.innerHTML = `
+        <div class="card">
+          <h2>Parking availability</h2>
+          <p class="meta">Capacities are approximate. The facilities manager updates occupied counts.</p>
+          ${ZONES.map(zone => {
+            const occupied = db.parking[zone.key] || 0;
+            const percent = Math.min(100, Math.round(occupied / zone.capacity * 100));
+            const color = percent >= 95 ? "var(--danger)" : percent >= 80 ? "var(--warning)" : "var(--success)";
+            return `<div class="item" style="margin-bottom:10px">
+              <h3>${esc(zone.name)}</h3>
+              <div class="meta">${zone.capacity - occupied} free of ${zone.capacity} · ${percent}% full</div>
+              <div style="height:10px;background:var(--line);border-radius:5px;margin:8px 0">
+                <div style="height:10px;width:${percent}%;background:${color};border-radius:5px"></div>
+              </div>
+              ${me.role === "manager" ? `
+                <button class="ghost" data-zone="${zone.key}" data-delta="-1">Vehicle out</button>
+                <button data-zone="${zone.key}" data-delta="1">Vehicle in</button>` : ""}
+            </div>`;
+          }).join("")}
+        </div>`;
+
+      app.querySelectorAll("[data-zone]").forEach(button => button.onclick = async () => {
+        const key = button.dataset.zone;
+        const delta = Number(button.dataset.delta);
+        if (sb) {
+          const {error} = await sb.rpc("adjust_parking",{zone_key:key,delta});
+          if (error) return fail(error);
+          await pull();
+        } else {
+          db.parking[key] = Math.max(0, Math.min(ZONES.find(z => z.key === key).capacity,(db.parking[key] || 0) + delta));
+          saveLocal();
+        }
+        park();
+      });
+    }
+
+    function lost() {
+      const statuses = ["Searching","At Information Counter","Returned"];
+      app.innerHTML = `
+        <div class="card">
+          <h2>Lost &amp; found</h2>
+          <div class="row">
+            <div><label for="lostKind">Report type</label><select id="lostKind"><option value="Lost">Something I lost</option><option value="Found">Something I found</option></select></div>
+            <div><label for="lostItem">Item</label><input id="lostItem" maxlength="80"></div>
+            <div><label for="lostWhere">Where / floor</label><input id="lostWhere" maxlength="80"></div>
+          </div>
+          <p class="error" id="lostError" role="alert"></p>
+          <button id="lostSubmit">Submit report</button>
+          <p class="meta">Found items should be handed to the Information Counter.</p>
+        </div>
+        <div class="card grid">${db.lost.length ? db.lost.slice().reverse().map(item => `
+          <div class="item">
+            <h3>${esc(item.item)}</h3>
+            <div class="meta">${esc(item.kind)} · ${esc(item.where)} · ${esc(item.date)}</div>
+            <span class="pill ${item.status === "Returned" ? "Resolved" : "Open"}">${esc(item.status)}</span>
+            ${me.role === "manager" ? `<select data-lost-status="${item.id}">${statuses.map(status => `<option ${status === item.status ? "selected" : ""}>${status}</option>`).join("")}</select>` : ""}
+          </div>`).join("") : `<p class="empty">No reports yet.</p>`}</div>`;
+
+      document.getElementById("lostSubmit").onclick = async () => {
+        const kind = document.getElementById("lostKind").value;
+        const item = document.getElementById("lostItem").value.trim();
+        const where = document.getElementById("lostWhere").value.trim();
+        if (item.length < 3 || where.length < 3) {
+          document.getElementById("lostError").textContent = "Enter an item and location of at least 3 characters.";
+          return;
+        }
+        if (sb) {
+          const {error} = await sb.from("lost_items").insert({
+            kind,item,location:where,status:kind === "Found" ? "At Information Counter" : "Searching"
+          });
+          if (error) return fail(error);
+          await pull();
+        } else {
+          db.lost.push({id:Date.now(),kind,item,where,date:now(),status:kind === "Found" ? "At Information Counter" : "Searching"});
+          saveLocal();
+        }
+        lost();
+      };
+      app.querySelectorAll("[data-lost-status]").forEach(select => select.onchange = async () => {
+        const item = db.lost.find(row => String(row.id) === select.dataset.lostStatus);
+        if (!item) return;
+        if (sb) {
+          const {error} = await sb.from("lost_items").update({status:select.value}).eq("id",item.id);
+          if (error) return fail(error);
+          await pull();
+        } else {
+          item.status = select.value;
+          saveLocal();
+        }
+        lost();
+      });
+    }
+
+    function visibleTickets() {
+      return db.tickets
+        .filter(ticket => me.role === "manager" || ticket.uid === me.unit || ticket.store_id === me.unit)
+        .filter(ticket => search.status === "All" || ticket.status === search.status)
+        .filter(ticket => {
+          if (!search.q.trim()) return true;
+          const haystack = `${ticket.title} ${ticket.unit} ${ticket.category}`.toLower();
+          return haystack.includes(search.q.trim().toLower());
+        })
+        .sort((a,b) => b.id - a.id);
+    }
+
+    function tix() {
+      const all = db.tickets.filter(ticket => me.role === "manager" || ticket.uid === me.unit || ticket.store_id === me.unit);
+      const count = status => all.filter(ticket => ticket.status === status).length;
+      app.innerHTML = `
+        <div class="stats">
+          <div class="stat"><b>${all.length}</b><small>Total tickets</small></div>
+          <div class="stat"><b>${count("Open")}</b><small>Open</small></div>
+          <div class="stat"><b>${count("In progress")}</b><small>In progress</small></div>
+          <div class="stat"><b>${count("Resolved")}</b><small>Resolved</small></div>
+        </div>
+        <div class="tabs">
+          <button class="${tab === "list" ? "on" : ""}" data-tab="list">${me.role === "manager" ? "All tickets" : "My tickets"}</button>
+          ${me.role === "tenant" ? `<button class="${tab === "new" ? "on" : ""}" data-tab="new">Report an issue</button>` :
+            `<button id="exportCsv" class="ghost">Export CSV</button>`}
+        </div>
+        ${tab === "new" ? ticketForm() : ticketList()}`;
+      app.querySelectorAll("[data-tab]").forEach(button => button.onclick = () => {
+        tab = button.dataset.tab;
+        tix();
+      });
+      if (tab === "new") wireTicketForm();
+      else wireTicketList();
+      const exportButton = document.getElementById("exportCsv");
+      if (exportButton) exportButton.onclick = exportCsv;
+    }
+
+    function ticketForm() {
+      return `
+        <div class="card">
+          <h2>Report an issue</h2>
+          <label for="ticketTitle">Short title</label>
+          <input id="ticketTitle" maxlength="80">
+          <div class="row">
+            <div><label for="ticketCategory">Category</label><select id="ticketCategory">${CATEGORIES.map(category => `<option>${category}</option>`).join("")}</select></div>
+            <div><label for="ticketPriority">Priority</label><select id="ticketPriority">${PRIORITIES.map(priority => `<option ${priority === "Normal" ? "selected" : ""}>${priority}</option>`).join("")}</select></div>
+          </div>
+          <label for="ticketDescription">What is happening?</label>
+          <textarea id="ticketDescription" rows="4" maxlength="500"></textarea>
+          <p class="error" id="ticketError" role="alert"></p>
+          <button id="ticketSubmit">Submit ticket</button>
+        </div>`;
+    }
+
+    function wireTicketForm() {
+      document.getElementById("ticketSubmit").onclick = async () => {
+        const title = document.getElementById("ticketTitle").value.trim();
+        const description = document.getElementById("ticketDescription").value.trim();
+        if (title.length < 5 || description.length < 10) {
+          document.getElementById("ticketError").textContent = "Enter a title of at least 5 characters and a description of at least 10 characters.";
+          return;
+        }
+        if (sb) {
+          const {error} = await sb.from("tickets").insert({
+            store_id:me.unit,
+            category:document.getElementById("ticketCategory").value,
+            priority:document.getElementById("ticketPriority").value,
+            title,
+            description
+          });
+          if (error) return fail(error);
+          await pull();
+        } else {
+          db.tickets.push({
+            id:db.tickets.reduce((max,ticket) => Math.max(max,ticket.id),0) + 1,
+            uid:me.unit,
+            store_id:me.unit,
+            unit:me.unit,
+            category:document.getElementById("ticketCategory").value,
+            priority:document.getElementById("ticketPriority").value,
+            title,
+            description,
+            status:"Open",
+            team:"Unassigned",
+            log:["Created " + now()]
+          });
+          saveLocal();
+        }
+        tab = "list";
+        tix();
+      };
+    }
+
+    function ticketList() {
+      const tickets = visibleTickets();
+      return `
+        <div class="card">
+          <div class="row">
+            <div><label for="statusFilter">Status</label><select id="statusFilter">${["All",...STATUSES].map(status => `<option ${status === search.status ? "selected" : ""}>${status}</option>`).join("")}</select></div>
+            <div><label for="ticketSearch">Search</label><input id="ticketSearch" value="${esc(search.q)}" placeholder="Title, unit or category"></div>
+          </div>
+        </div>
+        <div class="card grid">
+          ${tickets.length ? tickets.map(ticket => `
+            <div class="item">
+              <h3>#${ticket.id} ${esc(ticket.title)}</h3>
+              <div class="meta">${esc(ticket.unit)} · ${esc(ticket.category)}</div>
+              <div>
+                <span class="pill ${ticket.status === "In progress" ? "In-progress" : ticket.status}">${esc(ticket.status)}</span>
+                <span class="pill ${ticket.priority}">${esc(ticket.priority)}</span>
+                <span class="meta">${esc(ticket.team)}</span>
+              </div>
+              <div>${esc(ticket.description)}</div>
+              ${me.role === "manager" ? `
+                <div class="row" style="margin-top:8px">
+                  <div><label>Status</label><select data-ticket-id="${ticket.id}" data-ticket-field="status">${STATUSES.map(status => `<option ${status === ticket.status ? "selected" : ""}>${status}</option>`).join("")}</select></div>
+                  <div><label>Assign to</label><select data-ticket-id="${ticket.id}" data-ticket-field="team">${TEAMS.map(team => `<option ${team === ticket.team ? "selected" : ""}>${team}</option>`).join("")}</select></div>
+                  <div style="align-self:end;flex:0 0 auto"><button class="ghost" data-delete-ticket="${ticket.id}">Delete</button></div>
+                </div>` : ""}
+              <ul class="log">${(ticket.log || []).map(line => `<li>${esc(line)}</li>`).join("")}</ul>
+            </div>`).join("") : `<p class="empty">No tickets match. Adjust the filter or report a new issue.</p>`}
+        </div>`;
+    }
+
+    function wireTicketList() {
+      document.getElementById("statusFilter").onchange = event => {
+        search.status = event.target.value;
+        tix();
+      };
+      document.getElementById("ticketSearch").oninput = event => {
+        search.q = event.target.value;
+        tix();
+        const input = document.getElementById("ticketSearch");
+        input.focus();
+        input.setSelectionRange(search.q.length,search.q.length);
+      };
+      app.querySelectorAll("[data-ticket-id]").forEach(select => select.onchange = async () => {
+        const ticket = db.tickets.find(row => String(row.id) === select.dataset.ticketId);
+        if (!ticket || me.role !== "manager") return;
+        if (sb) {
+          const update = select.dataset.ticketField === "status"
+            ? {status:select.value}
+            : {assigned_team:select.value};
+          const {error} = await sb.from("tickets").update(update).eq("id",ticket.id);
+          if (error) return fail(error);
+          await pull();
+        } else {
+          if (select.dataset.ticketField === "status") ticket.status = select.value;
+          else ticket.team = select.value;
+          ticket.log.push(`${select.dataset.ticketField === "status" ? "Status" : "Assignment"} changed to ${select.value} · ${now()}`);
+          saveLocal();
+        }
+        tix();
+      });
+      app.querySelectorAll("[data-delete-ticket]").forEach(button => button.onclick = async () => {
+        if (me.role !== "manager") return;
+        if (!confirm(`Delete ticket #${button.dataset.deleteTicket}? This cannot be undone.`)) return;
+        if (sb) {
+          const {error} = await sb.from("tickets").delete().eq("id",button.dataset.deleteTicket);
+          if (error) return fail(error);
+          await pull();
+        } else {
+          db.tickets = db.tickets.filter(ticket => String(ticket.id) !== button.dataset.deleteTicket);
+          saveLocal();
+        }
+        tix();
+      });
+    }
+
+    function exportCsv() {
+      const quote = value => '"' + String(value).replace(/"/g,'""') + '"';
+      const rows = [["ID","Unit","Category","Priority","Status","Team","Title","Description"]];
+      db.tickets.forEach(ticket => rows.push([
+        ticket.id,ticket.unit,ticket.category,ticket.priority,ticket.status,ticket.team,ticket.title,ticket.description
+      ]));
+      const blob = new Blob([rows.map(row => row.map(quote).join(",")).join("\n")],{type:"text/csv;charset=utf-8"});
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "aeon-fixit-tickets.csv";
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(link.href),1000);
+    }
+
+    function makeBot() {
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = `
+        <button id="botb" aria-label="Open chat assistant" aria-expanded="false">💬</button>
+        <section id="botp" aria-label="Chat assistant">
+          <div id="botm" role="log" aria-live="polite"></div>
+          <div id="botq"></div>
+          <form id="botf">
+            <input id="boti" placeholder="Ask about stores, parking…" aria-label="Your message" maxlength="200" autocomplete="off">
+            <button type="submit">Send</button>
+          </form>
+        </section>`;
+      document.body.appendChild(wrapper);
+      const messages = document.getElementById("botm");
+      const say = (text,type) => {
+        const bubble = document.createElement("div");
+        bubble.className = `bubble ${type}`;
+        bubble.textContent = text;
+        messages.appendChild(bubble);
+        messages.scrollTop = messages.scrollHeight;
+      };
+      const reply = question => {
+        const text = question.toLowerCase();
+        const exact = STORES.filter(store => text.includes(store.name.toLowerCase()));
+        if (exact.length) return exact.map(store => `${store.name}: ${floorName(store.floor).toLower()} · Unit ${store.id}`).join("\n");
+        if (/park|parking|parkir/.test(text)) return ZONES.map(zone =>
+          `${zone.name}: ${zone.capacity - (db.parking[zone.key] || 0)} free of ${zone.capacity}`
+        ).join("\n");
+        if (/lost|found|missing|hilang/.test(text)) return "Use the Lost & found tab to submit or review a report.";
+        if (/ticket|repair|broken|maintenance|rusak/.test(text)) return "Store staff can report a problem in the Tickets tab.";
+        if (/coffee|cafe|café/.test(text)) return "Coffee options include Starbucks Coffee and other food and beverage tenants. Open Store finder for more.";
+        if (/hour|open|close|buka|tutup/.test(text)) return "I do not have opening hours. Please check the mall’s official website or ask the Information Counter.";
+        if (/^(hi|hello|hey|halo|hai)\b/.test(text)) return "Hello! I can help with stores, parking, lost items, and maintenance tickets.";
+        if (/thank|terima/.test(text)) return "You're welcome!";
+        return "Sorry, I didn’t catch that. I can help with finding a store, parking, lost & found, or maintenance tickets.";
+      };
+      const ask = question => {
+        say(question,"user");
+        say(reply(question),"bot");
+      };
+      document.getElementById("botq").innerHTML = ["Where is UNIQLO?","Is parking available?","I lost something","Where can I get coffee?"]
+        .map(text => `<button type="button" class="ghost">${text}</button>`).join("");
+      document.getElementById("botq").onclick = event => {
+        if (event.target.tagName === "BUTTON") ask(event.target.textContent);
+      };
+      document.getElementById("botf").onsubmit = event => {
+        event.preventDefault();
+        const input = document.getElementById("boti");
+        const question = input.value.trim();
+        if (!question) return;
+        input.value = "";
+        ask(question);
+      };
+      document.getElementById("botb").onclick = () => {
+        const panel = document.getElementById("botp");
+        const opened = panel.classList.toggle("open");
+        document.getElementById("botb").setAttribute("aria-expanded",String(opened));
+        if (opened) {
+          if (!messages.children.length) say("Hi! I can help you find a store, check parking, handle lost items, or report a problem.","bot");
+          document.getElementById("boti").focus();
+        }
+      };
+    }
+
+    async function init() {
+      try {
+        if (!(await restoreSession())) login();
+      } catch (_) {
+        login();
+      }
+    }
+
+    makeBot();
+    init();
